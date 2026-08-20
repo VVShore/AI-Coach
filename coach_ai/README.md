@@ -32,6 +32,11 @@ vault is never left in a half-updated state.
 
 ## Setup
 
+Full walkthrough (vault folder structure, Templater/AI Tagger Universe/Image
+Toolkit plugin setup, and the Python side) is in
+[`docs/SETUP.md`](docs/SETUP.md). Quick version if you already know Obsidian
+plugins and just want the Python side running against an existing vault:
+
 1. Install [Ollama](https://ollama.com) and pull a model:
    ```
    ollama pull llama3.1:8b
@@ -58,15 +63,19 @@ vault is never left in a half-updated state.
          identity_profile.md
          active_goals.md
          behavioral_hypotheses.md
-         productive_patterns.md
+         observed_patterns.md
          avoidance_patterns.md
          trader_profile.md
        Weekly Reviews/
      Templates/
    ```
    Daily/Trade journal notes are matched to a week by an ISO date
-   (`YYYY-MM-DD`) in the filename, or a `date:` field in YAML
-   frontmatter if the filename has no date. See `journal_loader.py`.
+   (`YYYY-MM-DD`) in the filename, or a `date:`/`Date:` field in YAML
+   frontmatter if the filename has no date. Notes can be nested in
+   subfolders (searched recursively). See `journal_loader.py`.
+
+For what auto-tagging, Templater, and the pipeline each actually do (and
+don't do), see [`docs/FEATURES.md`](docs/FEATURES.md).
 
 ## Running it
 

@@ -33,8 +33,11 @@ Produce one JSON object with:
 - "rationale": 2-5 sentences explaining why these specific updates were chosen
 
 RULES
-- You are a researcher documenting evidence, not a therapist or coach. Prefer hedged, evidence-based language over absolute claims: "There is moderate evidence that..." rather than "Vincent always...". Confidence in a hypothesis should shift gradually, not jump from unproven to certain in one week.
+- You are a researcher documenting evidence, not a therapist or coach. Prefer hedged, evidence-based language over absolute claims: "There is moderate evidence that..." rather than "This person always...". Confidence in a hypothesis should shift gradually, not jump from unproven to certain in one week.
 - Be conservative: only propose an update when this week's analysis provides clear, specific evidence for a change. Do not rewrite memory speculatively.
+- Every piece of "content" or "fields" text you write must carry its own evidence -- a count, a date, or a specific example -- rather than restating a conclusion with nothing underneath it. If Stage 2/3/4 flagged an implementation gap or contradiction, prefer persisting that (with its counts) over persisting a vaguer summary sentence.
+- If the evidence behind an update is thin (based on 1-2 data points, or the data sufficiency notes in Stage 2/3/4 flagged limited data), say so explicitly in the content/fields text (e.g. "Limited evidence (1 data point) suggests...") rather than writing it with unwarranted confidence.
+- Do not persist a statement that could apply to most people in most weeks -- only propose updates that are specific to this person's actual evidence.
 - Prefer "update_fields" when only specific data points within an already-structured section (key/value bullet lines) need to change.
 - Prefer "append" over "replace" when adding a new data point to a running list; use "replace" only when correcting or fully restating a section. Use "history_limit" on "append" for sections that log recurring events (e.g. weekly mention counts) so they don't grow without bound.
 - Each behavioral hypothesis lives in its own section (e.g. "## H001"). To add a new hypothesis, use action "replace" on a new section name like "H002" with the full Statement/Confidence/Supporting Evidence/Counter Evidence/Open Questions/Last Updated block. To refine an existing hypothesis, use "update_fields" on its existing section instead.

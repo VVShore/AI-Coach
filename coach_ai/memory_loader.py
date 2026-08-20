@@ -31,68 +31,120 @@ _SECTION_HEADING_RE = re.compile(r"^##\s+(.*?)\s*$")
 # of crashing on FileNotFoundError. Content is intentionally minimal;
 # Stage 5 fills these in over time.
 DEFAULT_MEMORY_TEMPLATES: Dict[str, str] = {
-    # Change #2: headings now reflect journal-derived evidence rather
-    # than pre-baked conclusions -- what's actually been said/observed,
-    # separated from what's merely desired, plus explicit space for
-    # conflicting evidence instead of silently overwriting it.
+    # v1 production design. Every section is either:
+    #   (a) a fixed, evidence-based list category (identity_profile,
+    #       observed_patterns) -- starts genuinely empty, grows via
+    #       'append' (optionally bounded with 'history_limit'); or
+    #   (b) a fixed set of '- Key: Value' fields (trader_profile) --
+    #       pre-populated with hedged placeholder values so the very
+    #       first Stage 5 update can already use 'update_fields'; or
+    #   (c) a dynamic, per-entity section created on demand (active_goals,
+    #       behavioral_hypotheses) -- the file ships with zero live
+    #       sections; Stage 5 creates one named section per goal/
+    #       hypothesis (e.g. a section titled 'Trading Bot' or 'H001')
+    #       the first time it has evidence for it, exactly matching the
+    #       field-level update example from the original spec.
+    # All explanatory text lives in each file's preamble (before the
+    # first '## ' heading), which no update action ever touches, so it
+    # stays accurate regardless of how much data accumulates below it.
     "identity_profile": (
-        "# Identity Profile\n\n"
-        "## Repeated Identity Statements\n\n(not yet established)\n\n"
-        "## Desired Identity\n\n(not yet established)\n\n"
-        "## Observed Identity\n\n(not yet established)\n\n"
-        "## Identity Conflicts\n\n(none recorded yet)\n\n"
-        "## Identity Changes\n\n(none recorded yet)\n"
+        "# Identity Profile\n"
+        "\n"
+        "Evidence-based record of identity signals drawn from journal entries: what is stated repeatedly, what is aspired to, what is actually observed in behavior, and where the two disagree. Entries are only added when there is direct journal evidence, and confidence is expected to shift gradually rather than jump. New observations are appended to the relevant section below (use `history_limit` on append if a section should only retain the most recent N entries); a whole section is only replaced outright when a correction is warranted, not as the default update path.\n"
+        "\n"
+        "## Repeated Identity Statements\n"
+        "\n"
+        "## Desired Identity\n"
+        "\n"
+        "## Observed Identity\n"
+        "\n"
+        "## Identity Conflicts\n"
+        "\n"
+        "## Identity Changes\n"
     ),
-    # Change #3: "recurring" replaces "current" -- a goal mentioned
-    # repeatedly over many weeks is more diagnostically useful than a
-    # goal that merely exists right now.
     "active_goals": (
-        "# Active Goals\n\n"
-        "## Recurring Goals\n\n(none recorded yet)\n\n"
-        "## Emerging Goals\n\n(none yet)\n\n"
-        "## Completed Goals\n\n(none yet)\n\n"
-        "## Inactive Goals\n\n(none yet)\n"
+        "# Active Goals\n"
+        "\n"
+        "Each tracked goal gets its own section below, named after the goal itself (for example a section titled `Trading Bot`), so its fields can be updated individually via `update_fields` without touching any other goal. A goal section is created the first time Stage 5 finds evidence for it, and typically carries these fields:\n"
+        "\n"
+        "- Status: recurring | emerging | completed | inactive\n"
+        "- Mention Count: running count of journal mentions\n"
+        "- Momentum: increasing | stable | decreasing\n"
+        "- First Mentioned: ISO date\n"
+        "- Last Mentioned: ISO date\n"
+        "- Notes: short evidence-based context\n"
+        "\n"
+        "Goal sections are created and updated dynamically as evidence accumulates; this file may contain any number of them at any time.\n"
     ),
-    # Change #4: each hypothesis is its own '## H00N' section so it can
-    # be updated individually (via action='update_fields') without
-    # touching unrelated hypotheses. Field lines use the same
-    # '- Key: Value' bullet format that update_fields parses, so the
-    # default skeleton is itself a valid update_fields target.
     "behavioral_hypotheses": (
-        "# Behavioral Hypotheses\n\n"
-        "## H001\n\n"
-        "- Statement: (no hypotheses recorded yet)\n"
-        "- Confidence: 0.0\n"
-        "- Supporting Evidence: (none yet)\n"
-        "- Counter Evidence: (none yet)\n"
-        "- Open Questions: (none yet)\n"
-        "- Last Updated: (not yet updated)\n"
+        "# Behavioral Hypotheses\n"
+        "\n"
+        "Each hypothesis is tracked in its own section below, numbered sequentially (for example a section titled `H001`, then `H002`), so it can be refined over time via `update_fields` without disturbing any other hypothesis. A hypothesis section typically carries these fields:\n"
+        "\n"
+        "- Statement: the hypothesis itself, stated with appropriate hedging\n"
+        "- Confidence: a 0.0-1.0 estimate, expected to move gradually as evidence accumulates\n"
+        "- Supporting Evidence: short evidence-based points that strengthen the hypothesis\n"
+        "- Counter Evidence: short evidence-based points that weaken or complicate it\n"
+        "- Open Questions: what would need to be true to raise or lower confidence\n"
+        "- Last Updated: ISO date of the most recent revision\n"
+        "\n"
+        "Hypothesis sections are created the first time Stage 5 proposes a new hypothesis, and are never silently deleted -- a hypothesis that stops being supported is marked accordingly rather than removed, so the reasoning trail stays intact.\n"
     ),
-    # Change #1: renamed from productive_patterns. The AI records
-    # neutral observations rather than pre-classifying a pattern as
-    # productive or unproductive; that judgement, if warranted, belongs
-    # in behavioral_hypotheses instead.
     "observed_patterns": (
-        "# Observed Patterns\n\n"
-        "## Identified Patterns\n\n(none recorded yet)\n\n"
-        "## Conditions That Co-Occur\n\n(none recorded yet)\n"
+        "# Observed Patterns\n"
+        "\n"
+        "Neutral, evidence-based record of recurring behavioral patterns noticed in journal entries. Patterns are recorded as observations, not judgements -- whether a pattern is ultimately helpful or harmful is a question for `behavioral_hypotheses.md`, not decided here. New observations are appended to the relevant section below; use `history_limit` on append if a section should only retain the most recent N entries.\n"
+        "\n"
+        "## Identified Patterns\n"
+        "\n"
+        "## Conditions That Co-Occur\n"
     ),
     "avoidance_patterns": (
         "# Avoidance Patterns\n\n"
         "## Identified Patterns\n\n(none recorded yet)\n\n"
         "## Common Triggers\n\n(none recorded yet)\n"
     ),
-    # Change #5: trading-specific vocabulary instead of the generic
-    # strengths/weaknesses framing used elsewhere.
     "trader_profile": (
-        "# Trader Profile\n\n"
-        "## Execution\n\n(not yet established)\n\n"
-        "## Psychology\n\n(not yet established)\n\n"
-        "## Edge\n\n(not yet established)\n\n"
-        "## Risk\n\n(not yet established)\n\n"
-        "## Improvement Areas\n\n(none recorded yet)\n"
+        "# Trader Profile\n"
+        "\n"
+        "Evidence-based assessment of trading behavior, updated incrementally via `update_fields` as new trade journal evidence accumulates. Each category below carries a `Confidence` field (0.0-1.0) and a `Last Updated` field alongside its content, so the assessment's certainty and recency are always visible. `Improvement Areas` is the exception: it is a running, evidence-based list rather than a fixed set of fields, and supports `append` with `history_limit`.\n"
+        "\n"
+        "## Execution\n"
+        "\n"
+        "- Entry Discipline: (not yet observed)\n"
+        "- Exit Discipline: (not yet observed)\n"
+        "- Position Sizing Consistency: (not yet observed)\n"
+        "- Plan Adherence: (not yet observed)\n"
+        "- Confidence: (not yet established)\n"
+        "- Last Updated: (not yet updated)\n"
+        "\n"
+        "## Psychology\n"
+        "\n"
+        "- Emotional Regulation: (not yet observed)\n"
+        "- Tilt Indicators: (not yet observed)\n"
+        "- Confidence: (not yet established)\n"
+        "- Last Updated: (not yet updated)\n"
+        "\n"
+        "## Edge\n"
+        "\n"
+        "- Stated Edge: (not yet observed)\n"
+        "- Supporting Evidence: (none yet)\n"
+        "- Counter Evidence: (none yet)\n"
+        "- Confidence: (not yet established)\n"
+        "- Last Updated: (not yet updated)\n"
+        "\n"
+        "## Risk\n"
+        "\n"
+        "- Typical Position Sizing: (not yet observed)\n"
+        "- Stop-Loss Discipline: (not yet observed)\n"
+        "- Max Observed Drawdown Behavior: (not yet observed)\n"
+        "- Confidence: (not yet established)\n"
+        "- Last Updated: (not yet updated)\n"
+        "\n"
+        "## Improvement Areas\n"
     ),
 }
+
 
 # Change #1 backward compatibility: if a vault still has the old
 # productive_patterns.md file on disk and the new observed_patterns.md

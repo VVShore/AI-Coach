@@ -20,33 +20,45 @@ $stage5_json
 === PREVIOUS MEMORY STATE, BEFORE THIS WEEK'S UPDATES (for comparison) ===
 $current_memory
 
+DATA SUFFICIENCY CHECK (do this first, silently, before writing anything)
+Check how many days this week actually had journal content (see Stage 1). If it's fewer than 3, every field below must reflect that limitation explicitly rather than reporting patterns with unwarranted confidence -- state it plainly in "overview" and keep "overall_momentum" and any per-goal momentum conservative.
+
+THREE REGISTERS -- read this before writing any field
+Every field below belongs to exactly one of three registers. Do not blend them within a single field:
+- OBSERVATION (what happened): a fact with a count, date, or example attached. No interpretation. Fields in this register: key_wins, key_struggles, goal_progress, trading_insights, changes_since_last_week, goal_momentum, goal_mention_frequency, overall_momentum.
+- HYPOTHESIS (why it may be happening): an interpretation of observations, always hedged, always traceable to the observations that motivate it. Fields in this register: behavioral_insights, identity_shifts, biggest_contradictions, hypotheses_strengthened, hypotheses_weakened, hypotheses_new, hypotheses_retired.
+- COACHING IMPLICATION (what deserves attention next week): forward-looking, specific, tied to a named observation or hypothesis above -- never generic advice. Fields in this register: action_items_next_week, reflection_questions.
+"overview" is the only field allowed to mix registers, and even there, keep observation sentences and interpretive sentences distinguishable (e.g. lead with what happened, then clearly hedge before interpreting).
+
 TASK
 Produce one JSON object with:
 - "title": a short, specific title for the week (not generic, e.g. reference an actual theme from the week)
 - "week_range": human-readable date range string, e.g. "July 6 - July 12, 2026"
-- "overview": 4-8 sentences synthesizing the week across journaling, behavior, identity, and goals, in a neutral analytical register
-- "overall_momentum": a single 0-100 score describing overall forward progress this week, with a trend versus your best estimate of the prior state, formatted like "76 (+8)" or "41 (-3)" or "50 (+0)" if there is no prior baseline to compare against
+- "overview": 4-8 sentences synthesizing the week. Lead with the single most evidence-backed discovery (an implementation gap, a recurring contradiction, or an emerging long-term trend relative to memory) -- not a mood recap of the week in chronological order.
+- "overall_momentum": a single 0-100 score describing overall forward progress this week, with a trend versus your best estimate of the prior state, formatted like "76 (+8)" or "41 (-3)" or "50 (+0)" if there is no prior baseline to compare against. If data sufficiency was low this week, keep the trend close to "+0" rather than asserting a confident swing.
 - "goal_momentum": an object mapping each major recurring goal name (from Stage 4 / active_goals memory) to one of "increasing", "stable", "decreasing" -- omit goals with no evidence either way
 - "goal_mention_frequency": an object mapping each major recurring goal name to an integer count of how many times it was mentioned across this week's journal entries (per Stage 1 evidence)
-- "key_wins": array of short strings, concrete wins this week
-- "key_struggles": array of short strings, concrete struggles this week
-- "behavioral_insights": array of short strings drawn from the Stage 2 patterns
-- "identity_shifts": array of short strings drawn from Stage 3 observations (empty array if no real shift occurred)
-- "goal_progress": array of short strings drawn from Stage 4 goal updates
+- "key_wins": array of short strings, concrete observed wins this week, each with a count/date/example if more than one instance occurred
+- "key_struggles": array of short strings, concrete observed struggles this week
+- "behavioral_insights": array of short strings, each a hypothesis-register interpretation drawn from Stage 2's patterns -- prioritize implementation gaps, recurring contradictions, and emerging trends over restating a Stage 2 pattern verbatim. Each must cite the concrete evidence (count/dates) that motivates it, not just assert the interpretation.
+- "identity_shifts": array of short strings drawn from Stage 3 observations (empty array if no real shift occurred) -- hypothesis register, must cite evidence
+- "goal_progress": array of short strings, observation-register facts drawn from Stage 4 goal updates (counts of mentions vs. actions, status changes)
 - "trading_insights": array of short strings about trading performance/behavior this week (empty array if no trading occurred)
-- "biggest_contradictions": array of short strings, each a specific evidence-based inconsistency with no judgement attached (e.g. "Trading Bot mentioned in 5 of 7 daily entries; implementation work occurred on 2 of those days"). Empty array if none found.
+- "biggest_contradictions": array of short strings, each a specific evidence-based inconsistency with no judgement attached (e.g. "Trading Bot mentioned in 5 of 7 daily entries; implementation work occurred on 2 of those days"). Empty array if none found. This is one of the highest-value fields in the whole report -- do not leave it empty if Stage 2/3/4 evidence supports a real contradiction.
 - "hypotheses_strengthened": array of short strings naming behavioral hypotheses (by their memory heading, e.g. "H001") whose supporting evidence grew this week
 - "hypotheses_weakened": array of short strings naming hypotheses whose evidence was contradicted or weakened this week
 - "hypotheses_new": array of short strings naming newly proposed hypotheses this week
 - "hypotheses_retired": array of short strings naming hypotheses dropped this week for lack of ongoing evidence
 - "changes_since_last_week": array of short strings describing what actually changed relative to the previous memory state above -- not a restatement of what currently exists
-- "action_items_next_week": array of short, concrete, actionable strings for the coming week (at least one required)
-- "reflection_questions": array of 3-5 specific, evidence-based questions for the person to consider (never generic "how are you feeling" style questions -- each must reference something concrete from this week's evidence)
+- "action_items_next_week": array of short, concrete, actionable strings for the coming week (at least one required). Each must trace back to a specific observation or hypothesis above by name or evidence -- never a generic action ("be more disciplined") that isn't anchored to this week's actual findings.
+- "reflection_questions": array of 3-5 specific, evidence-based questions for the person to consider (never generic "how are you feeling" style questions -- each must reference something concrete from this week's evidence, ideally targeting the biggest contradiction or implementation gap found)
 
 RULES
 - Ground every claim in the JSON provided above -- do not introduce new facts.
 - Use hedged, evidence-based language ("there is evidence that...", "this week's data suggests...") rather than absolute or diagnostic claims. Do not make psychological or clinical claims.
+- Do not write a sentence that could apply to most people in most weeks -- every observation and hypothesis must be anchored to a specific count, date, or example unique to this week's data.
 - Report contradictions and unresolved tension neutrally; do not editorialize or offer generic motivational framing.
+- If data sufficiency was low this week, say so explicitly in "overview" rather than letting confident-sounding language elsewhere in the report imply otherwise.
 - If a section legitimately has nothing to report (e.g. no trading occurred, no identity shift observed), use an empty array/object rather than inventing content.
 - Output ONLY the JSON object. No markdown code fences, no preamble, no explanation, no trailing text.
 

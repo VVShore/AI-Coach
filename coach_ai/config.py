@@ -20,7 +20,12 @@ from pathlib import Path
 
 
 def _env_str(key: str, default: str) -> str:
-    return os.environ.get(key, default)
+    # .strip() defensively: a stray trailing/leading space in an env
+    # var (e.g. `$env:OLLAMA_MODEL = "qwen3:14b-q4_K_M "` in PowerShell,
+    # an easy accident to make) silently turns into a model name Ollama
+    # won't recognize, which is a confusing failure mode to debug.
+    val = os.environ.get(key)
+    return val.strip() if val is not None else default
 
 
 def _env_int(key: str, default: int) -> int:

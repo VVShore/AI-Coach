@@ -33,7 +33,7 @@ _FRONTMATTER_DATE_RE = re.compile(
     r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL
 )
 _FRONTMATTER_FIELD_DATE_RE = re.compile(
-    r"^\s*date\s*:\s*[\"']?(\d{4}-\d{2}-\d{2})[\"']?\s*$", re.MULTILINE
+    r"^\s*date\s*:\s*[\"']?(\d{4}-\d{2}-\d{2})[\"']?\s*$", re.MULTILINE | re.IGNORECASE
 )
 
 
@@ -78,7 +78,22 @@ def _load_entries_from_dir(
         logger.warning("Journal directory does not exist, skipping: %s", directory)
         return entries
 
-    for path in sorted(directory.glob("*.md")):
+    # Use rglob (recursive) rather than glob so notes organized into
+    # subfolders -- e.g. "Daily Journal/2026/07/2026-07-06.md", a common
+    # layout for Obsidian's Daily Notes / Periodic Notes plugins -- are
+    # still found. This is a superset of the old glob("*.md") behavior:
+    # anything sitting directly in `directory` is still matched too.
+    found_paths = sorted(directory.rglob("*.md"))
+
+    if not found_paths:
+        logger.warning(
+            "No .md files found anywhere under %s (checked subfolders too). "
+            "If you expect files here, verify the folder path is exactly right "
+            "and that notes actually use a .md extension.",
+            directory,
+        )
+
+    for path in found_paths:
         try:
             raw_text = path.read_text(encoding="utf-8")
         except OSError as exc:
